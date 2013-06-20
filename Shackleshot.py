@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 ia=0
 sequence = 0
 #maxmatch = "9999999999"
-maxmatch = "12822135"
+maxmatch = "112822135"
 go = True
 #def getHistory():
 
@@ -19,14 +19,12 @@ while go == True:
                      "&start_at_match_id=%s"%("XML","9D6AA7810AF5EF66B3A70566614DE147","40753485","60",maxmatch))
     tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
     matches=tree.find("matches").findall("match")
-    if matches:
+    if not matches:
         go = False
     for h in matches:
         ia+=1
         #fdsa = h.find("players").findall("player")
         templist = []
-        if h.find("match_id").text == maxmatch:
-            go = False
         maxmatch = h.find("match_id").text
         #print templist
         print maxmatch
