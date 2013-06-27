@@ -65,5 +65,25 @@ def openDetails():
         matchdetails = pickle.load(f) 
     return matchdetails
 
-matchdetails = openDetails()
-print matchdetails[0]
+def findAllGamesWithItem(myID,item):
+    matchdetails = openDetails()
+    for match in matchdetails:
+        try:
+            tree = ET.fromstring(match.encode('ascii', 'ignore'))
+            players =tree.find("players").findall("player")
+            for player in players:
+                user = player.find("account_id")
+                if user.text == myID:
+                    break
+        except:
+            print "user not found in game " + match
+        for i in xrange(0,5):
+            curitem = player.find("item_"+str(i))
+            if curitem.text == str(item):
+                print tree.findtext("match_id")
+                break
+            
+        
+
+findAllGamesWithItem("40753485","116")
+    
