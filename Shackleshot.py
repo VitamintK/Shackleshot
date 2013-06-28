@@ -35,8 +35,8 @@ def getAllMatches(playerid):
     print "matches: " + str(ia)
     print "sequence: " + str(sequence)
     return matchlist
-def saveAllMatches():
-    allmatches = getAllMatches("40753485")
+def saveAllMatches(playerID):
+    allmatches = getAllMatches(playerID)
     #print allmatches
     with open("matchlist.txt",'w') as p:
         pickle.dump(allmatches,p)
@@ -73,25 +73,27 @@ def findAllGamesWithItem(myID,item):
             tree = ET.fromstring(match.encode('ascii', 'ignore'))
             players =tree.find("players").findall("player")
             for player in players:
-                user = player.find("account_id")
-                if user.text == myID:
+                if player.find("account_id").text == myID:
+                    user = player
+                    break
+            for i in xrange(0,5):
+                curitem = user.find("item_"+str(i))
+                if curitem.text == str(item):
+                    amount+=1
+                    print getHero(player.findtext("hero_id")) + " - " + tree.findtext("match_id")
+                    #print "http://dotabuff.com/matches/"+tree.findtext("match_id")
                     break
         except:
-            print "user not found in game " + match
-        for i in xrange(0,5):
-            curitem = player.find("item_"+str(i))
-            if curitem.text == str(item):
-                amount+=1
-                print tree.findtext("match_id")
-                #print "http://dotabuff.com/matches/"+tree.findtext("match_id")
-                print player.findtext("hero_id")
-                break
+            print "user not found in game " + tree.findtext("match_id")
     print str(amount) + " games with "+ itemray[str(item)]
 
 def getHero(heroID):
     with open("heroes.xml",'r') as r:
         tree = ET.fromstring(r.read().encode('ascii', 'ignore'))
-        localizedname = tree.find("heroes")[int(heroID)-1].find("localized_name").text
+        heroes = tree.find("heroes").findall("hero")
+        for hero in heroes:
+            if hero.findtext("id")==str(heroID):
+                localizedname = hero.findtext("localized_name")
     return localizedname
 
 itemray ={"0" : "emptyitembg",
@@ -312,5 +314,4 @@ itemray ={"0" : "emptyitembg",
 
 
 #findAllGamesWithItem("40753485","204")
-print getHero(5)
-    
+findAllGamesWithItem("47199737","63")  
