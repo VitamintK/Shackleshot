@@ -35,10 +35,11 @@ def getAllMatches(playerid):
     print "matches: " + str(ia)
     print "sequence: " + str(sequence)
     return matchlist
+
 def saveAllMatches(playerID):
     allmatches = getAllMatches(playerID)
     #print allmatches
-    with open("matchlist.txt",'w') as p:
+    with open("matches"+str(playerID)+".txt",'w') as p:
         pickle.dump(allmatches,p)
 
 def getAllDetails(matchfile):
@@ -55,15 +56,19 @@ def getAllDetails(matchfile):
         print i
     return allDetailsXML
 
-def saveAllDetails():
-    alldetails = getAllDetails("matchlist.txt")
-    with open("matchdetails.txt",'w') as p:
+def saveAllDetails(playerID):
+    alldetails = getAllDetails("matches"+str(playerID)+".txt")
+    with open("matchdetails"+str(playerID)+".txt",'w') as p:
         pickle.dump(alldetails,p)
 
-def openDetails():
-    with open("matchdetails.txt", 'r') as f:
+def openDetails(playerID):
+    with open("matchdetails"+str(playerID)+".txt", 'r') as f:
         matchdetails = pickle.load(f) 
     return matchdetails
+
+def saveAllDetailsFromMatch(playerID):
+    saveAllMatches(playerID)
+    saveAllDetails(playerID)
 
 def findAllGamesWithItem(myID,item):
     amount = 0
