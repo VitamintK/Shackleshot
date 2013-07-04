@@ -47,10 +47,20 @@ def getAllDetails(matchfile):
     with open(matchfile, 'r') as f:
         matchlist = pickle.load(f)
     for i in matchlist:
-        r = requests.get("https://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/V001/"
-                         "?format=%s"
-                         "&key=%s"
-                         "&match_id=%s"%("XML","9D6AA7810AF5EF66B3A70566614DE147",i))
+        try:
+            r = requests.get("https://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/V001/"
+                             "?format=%s"
+                             "&key=%s"
+                             "&match_id=%s"%("XML","9D6AA7810AF5EF66B3A70566614DE147",i))
+        except:
+            print "failed. " + i + ". Trying again."
+            try:
+                r = requests.get("https://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/V001/"
+                                 "?format=%s"
+                                 "&key=%s"
+                                 "&match_id=%s"%("XML","9D6AA7810AF5EF66B3A70566614DE147",i))
+            except:
+                print "failed again.  skipping."
         allDetailsXML.append(r.text)
         #print r.text
         print i
@@ -71,8 +81,9 @@ def saveAllDetailsFromMatch(playerID):
     saveAllDetails(playerID)
 
 def findAllGamesWithItem(myID,item):
+    #change this to return a list of all matches with the item, and have seperate functions to print out all hero names or winrate etc
     amount = 0
-    matchdetails = openDetails()
+    matchdetails = openDetails(myID)
     for match in matchdetails:
         try:
             tree = ET.fromstring(match.encode('ascii', 'ignore'))
@@ -316,7 +327,8 @@ itemray ={"0" : "emptyitembg",
              "214" : "tranquil_boots"
             }
 
-
+mabufula = "40753485"
 
 #findAllGamesWithItem("40753485","204")
-findAllGamesWithItem("47199737","63")  
+#saveAllDetailsFromMatch(mabufula)
+findAllGamesWithItem("40753485","65")  
