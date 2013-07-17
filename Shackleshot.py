@@ -1,3 +1,35 @@
+#MASKOFMADNESS.COM
+#HELMOFIRONWILL.COM
+#TANGOES.COM
+#DRUMOFENDURANCE.COM
+#GG-BRANCH.COM
+#GGBRANCH.COM
+#IRONWOODBRANCH.COM
+#DAGON5.COM
+#DAGON-5.COM
+#DAGON.COM
+#CULLINGBLADE.COM
+#DAGON4.COM
+#GUINSOO.COM
+#sheepstick.com
+#FORCESTAFF.COM
+#NULLTALISMAN.COM
+#BRACERS.COM
+#WRAITHBAND.COM
+#SOULRING.COM
+#HANDOFMIDAS.COM
+#HAND-OF-MIDAS.COM
+#PERFECTMICRO.COM
+#PERFECT-MICRO.COM
+#ORBOFVENOM.COM
+#MAGICSTICK.COM
+#MAGIC-STICK.COM
+#BLINKDAGGER.COM
+#BLINK-DAGGER.COM
+#BLINK DAGGER.COM
+#BATTLEFURY.COM
+#EAGLESONG.COM
+
 import requests
 import os
 import pickle
@@ -66,11 +98,16 @@ def getAllDetails(matchfile):
         print i
     return allDetailsXML
 
-def saveAllDetails(playerID):
-    alldetails = getAllDetails("matches"+str(playerID)+".txt")
-    with open("matchdetails"+str(playerID)+".txt",'w') as p:
-        pickle.dump(alldetails,p)
-
+def saveAllDetails(playerID,overwrite = True):
+    #if not "matchdetails"+str(playerID)+".txt":
+    try:
+        open("matchdetails"+str(playerID)+".txt",'r')
+    except IOError:
+        alldetails = getAllDetails("matches"+str(playerID)+".txt")
+        with open("matchdetails"+str(playerID)+".txt",'w') as p:
+            pickle.dump(alldetails,p)
+        print "File doesnt exists"
+        
 def openDetails(playerID):
     with open("matchdetails"+str(playerID)+".txt", 'r') as f:
         matchdetails = pickle.load(f) 
@@ -82,6 +119,7 @@ def saveAllDetailsFromMatch(playerID):
 
 def findAllGamesWithItem(myID,item):
     #change this to return a list of all matches with the item, and have seperate functions to print out all hero names or winrate etc
+    matches = []
     amount = 0
     matchdetails = openDetails(myID)
     for match in matchdetails:
@@ -328,7 +366,15 @@ itemray ={"0" : "emptyitembg",
             }
 
 mabufula = "40753485"
+arthor = "47199737"
+flameant = "29065860"
 
 #findAllGamesWithItem("40753485","204")
 #saveAllDetailsFromMatch(mabufula)
-findAllGamesWithItem("40753485","65")  
+#saveAllDetailsFromMatch("29065860")
+#saveAllDetailsFromMatch("47199737")
+findAllGamesWithItem(mabufula,"50")  
+findAllGamesWithItem(mabufula,"214")  
+findAllGamesWithItem(mabufula,"180")  
+findAllGamesWithItem(mabufula,"48")  
+findAllGamesWithItem(mabufula,"63")  
