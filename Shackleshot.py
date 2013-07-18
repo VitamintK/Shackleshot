@@ -1,34 +1,6 @@
 #MASKOFMADNESS.COM
-#HELMOFIRONWILL.COM
-#TANGOES.COM
-#DRUMOFENDURANCE.COM
-#GG-BRANCH.COM
 #GGBRANCH.COM
-#IRONWOODBRANCH.COM
 #DAGON5.COM
-#DAGON-5.COM
-#DAGON.COM
-#CULLINGBLADE.COM
-#DAGON4.COM
-#GUINSOO.COM
-#sheepstick.com
-#FORCESTAFF.COM
-#NULLTALISMAN.COM
-#BRACERS.COM
-#WRAITHBAND.COM
-#SOULRING.COM
-#HANDOFMIDAS.COM
-#HAND-OF-MIDAS.COM
-#PERFECTMICRO.COM
-#PERFECT-MICRO.COM
-#ORBOFVENOM.COM
-#MAGICSTICK.COM
-#MAGIC-STICK.COM
-#BLINKDAGGER.COM
-#BLINK-DAGGER.COM
-#BLINK DAGGER.COM
-#BATTLEFURY.COM
-#EAGLESONG.COM
 
 import requests
 import os
@@ -68,17 +40,28 @@ def getAllMatches(playerid):
     print "sequence: " + str(sequence)
     return matchlist
 
-def saveAllMatches(playerID):
-    allmatches = getAllMatches(playerID)
-    #print allmatches
-    with open("matches"+str(playerID)+".txt",'w') as p:
-        pickle.dump(allmatches,p)
+def saveAllMatches(playerID,overwrite = True):
+    try:
+        with open("matches"+str(playerID)+".txt",'r') as p:
+            pass
+    except IOError:
+        allmatches = getAllMatches(playerID)
+        with open("matches"+str(playerID)+".txt",'w') as p:
+            pickle.dump(allmatches,p)
+    else:
+        if overwrite:
+            allmatches = getAllMatches(playerID)
+            with open("matches"+str(playerID)+".txt",'w') as p:
+                pickle.dump(allmatches,p)
+        else:
+            pass
 
 def getAllDetails(matchfile):
     allDetailsXML = []
     with open(matchfile, 'r') as f:
         matchlist = pickle.load(f)
     for i in matchlist:
+        print "for i in matchlist"
         try:
             r = requests.get("https://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/V001/"
                              "?format=%s"
@@ -99,23 +82,39 @@ def getAllDetails(matchfile):
     return allDetailsXML
 
 def saveAllDetails(playerID,overwrite = True):
-    #if not "matchdetails"+str(playerID)+".txt":
     try:
-        open("matchdetails"+str(playerID)+".txt",'r')
+        with open("matchdetails"+str(playerID)+".txt",'r') as q:
+            #if this doesn't raise an error, then the file already exists
+            print "FILE EXISTS"
+            pass
+        
     except IOError:
+        #this probably means that the file doesn't exist yet.
+        print "FILE DOESN'T EXIST YET.  WRITING."
         alldetails = getAllDetails("matches"+str(playerID)+".txt")
         with open("matchdetails"+str(playerID)+".txt",'w') as p:
             pickle.dump(alldetails,p)
-        print "File doesnt exists"
+    else:
+        #if the file already exists
+        if overwrite:
+            print "OVERWRITING"
+            alldetails = getAllDetails("matches"+str(playerID)+".txt")
+            with open("matchdetails"+str(playerID)+".txt",'w') as p:
+                pickle.dump(alldetails,p)
+        else:
+            print "NOT OVERWRITING"
+            pass
         
 def openDetails(playerID):
     with open("matchdetails"+str(playerID)+".txt", 'r') as f:
         matchdetails = pickle.load(f) 
     return matchdetails
 
-def saveAllDetailsFromMatch(playerID):
-    saveAllMatches(playerID)
-    saveAllDetails(playerID)
+def saveAllDetailsFromID(playerID,overwrite = True):
+    print "saving all matches"
+    saveAllMatches(playerID,overwrite)
+    print "saving all details"
+    saveAllDetails(playerID,overwrite)
 
 def findAllGamesWithItem(myID,item):
     #change this to return a list of all matches with the item, and have seperate functions to print out all hero names or winrate etc
@@ -370,11 +369,6 @@ arthor = "47199737"
 flameant = "29065860"
 
 #findAllGamesWithItem("40753485","204")
-#saveAllDetailsFromMatch(mabufula)
-#saveAllDetailsFromMatch("29065860")
-#saveAllDetailsFromMatch("47199737")
-findAllGamesWithItem(mabufula,"50")  
-findAllGamesWithItem(mabufula,"214")  
-findAllGamesWithItem(mabufula,"180")  
-findAllGamesWithItem(mabufula,"48")  
-findAllGamesWithItem(mabufula,"63")  
+#saveAllDetailsFromID(mabufula)
+#saveAllDetailsFromID("29065860")
+#saveAllDetailsFromID("47199737")
