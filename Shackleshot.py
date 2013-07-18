@@ -1,6 +1,8 @@
 #MASKOFMADNESS.COM
 #GGBRANCH.COM
 #DAGON5.COM
+with open("config.txt", 'r') as f:
+    apikey = f.read()
 
 import requests
 import os
@@ -22,7 +24,7 @@ def getAllMatches(playerid):
                          "&key=%s"
                          "&account_id=%s"
                          "&matches_requested=%s"
-                         "&start_at_match_id=%s"%("XML","9D6AA7810AF5EF66B3A70566614DE147",playerid,"60",maxmatch))
+                         "&start_at_match_id=%s"%("XML",apikey,playerid,"60",maxmatch))
         tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
         matches=tree.find("matches").findall("match")
         if not matches:
