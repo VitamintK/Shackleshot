@@ -1,13 +1,15 @@
 #MASKOFMADNESS.COM
 #GGBRANCH.COM
 #DAGON5.COM
-with open("config.txt", 'r') as f:
-    apikey = f.read()
 
 import requests
 import os
 import pickle
 import xml.etree.ElementTree as ET
+
+with open("config.txt", 'r') as f:
+    apikey = f.read()
+
 def getAllMatches(playerid):
     matchlist = []
     ia=0
@@ -19,6 +21,7 @@ def getAllMatches(playerid):
     while go == True:
         sequence+=1
         maxmatch = str(int(maxmatch)-1)
+        print apikey
         r = requests.get("http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1/?"
                          "format=%s"
                          "&key=%s"
@@ -366,11 +369,18 @@ itemray ={"0" : "emptyitembg",
              "214" : "tranquil_boots"
             }
 
+def testGauntlet():
+    findAllGamesWithItem(mabufula,"50")  
+    findAllGamesWithItem(mabufula,"214")  
+    findAllGamesWithItem(mabufula,"180")  
+    findAllGamesWithItem(mabufula,"48")  
+    findAllGamesWithItem(mabufula,"63")
+    
 mabufula = "40753485"
 arthor = "47199737"
 flameant = "29065860"
 
-#findAllGamesWithItem("40753485","204")
+
 #saveAllDetailsFromID(mabufula)
 #saveAllDetailsFromID("29065860")
 #saveAllDetailsFromID("47199737")
