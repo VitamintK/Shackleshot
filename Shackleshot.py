@@ -144,7 +144,7 @@ def findAllGamesWithItem(myID,item):
                 curitem = user.find("item_"+str(i))
                 if curitem.text == str(item):
                     amount+=1
-                    print getHero(player.findtext("hero_id")) + " - " + tree.findtext("match_id")
+                    #print getHero(player.findtext("hero_id")) + " - " + tree.findtext("match_id")
                     itemmatches.append(tree.findtext("match_id"))
                     itemmatchdetails.append(match)
                     #print "http://dotabuff.com/matches/"+tree.findtext("match_id")
@@ -172,25 +172,31 @@ def calculateWinrateFromDetails(myID, matchdetails):
         if radiant == tree.findtext('radiant_win'):
             wins+=1
     try:
-        print str(wins) + "/" + str(len(matchdetails)) + " - " + str(100*wins/len(matchdetails)) + "%"
+        winpercent = round(float(100*wins)/len(matchdetails),1)
+        print str(wins) + "/" + str(len(matchdetails)) + " - " + str(winpercent) + "%"
     except ZeroDivisionError:
         #hey it's pythonic!
+        winpercent = -1
         print "never bought!"
-    return (wins,len(matchdetails))
+    return (wins,len(matchdetails),winpercent)
 
 def calculateWinrate(myID, item):
     return calculateWinrateFromDetails(myID,findAllGamesWithItem(myID,item))
 
 def calculateWinrateForAllItems(myID):
     winrates = []
+    iteration = 0
     for i in itemray:
+        print str(iteration) + " out of " + str(len(itemray))
+        iteration+=1
         winrates.append((i,calculateWinrate(myID,i)))
     sortList(winrates)
+    print winrates
     for winrate in winrates:
-        print winrate
+        print str(winrate[1][2]) + "%  - " + itemray[str(winrate[0])] + " - " + str(winrate[1][0]) + "/" + str(winrate[1][1])
         
 def sortList(asdf):
-    asdf.sort(key=lambda price: price[1][1]/price[1][0])
+    asdf.sort(key=lambda price: price[1][2])
 
 def getHero(heroID):
     with open("heroes.xml",'r') as r:
