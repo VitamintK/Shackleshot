@@ -1,7 +1,7 @@
 #MASKOFMADNESS.COM
 #GGBRANCH.COM
 #DAGON5.COM
-
+#to do: more than 250 matches, and exclude diretide
 import requests
 import os
 import pickle
@@ -194,6 +194,30 @@ def calculateWinrateForAllItems(myID):
     print winrates
     for winrate in winrates:
         print str(winrate[1][2]) + "%  - " + itemray[str(winrate[0])] + " - " + str(winrate[1][0]) + "/" + str(winrate[1][1])
+
+def calculatePlayedWithFromDetails(myID,matchdetails):
+    users = {}
+    for match in matchdetails:
+        tree = ET.fromstring(match.encode('ascii', 'ignore'))
+        try:
+            players = tree.find("players").findall("player")
+            for player in players:
+                playerid = player.find("account_id").text
+                if playerid in users:
+                    users[playerid]+=1
+                else:
+                    users[playerid]=1
+        except:
+            print "user not found"
+    for user in users:
+        r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
+                         "format=%s"
+                         "&key=%s"
+                         "&steamids=%s"%("XML",apikey,long(user)+76561197960265728))
+        tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
+        players =tree.find("players").findall("player")
+        for player in players:
+            print player.findtext('personaname') + " - " + str(users[user])
         
 def sortList(asdf):
     asdf.sort(key=lambda price: price[1][2])
