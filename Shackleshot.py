@@ -217,8 +217,11 @@ def calculatePlayedWithFromDetails(myID,matchdetails):
         tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
         players =tree.find("players").findall("player")
         for player in players:
-            print player.findtext('personaname') + " - " + str(users[user])
-        
+            print str(users[user]) + " - " + player.findtext('personaname')
+
+def getPlayedWith(myID,friendID):
+    pass
+
 def sortList(asdf):
     asdf.sort(key=lambda price: price[1][2])
 
