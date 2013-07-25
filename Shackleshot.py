@@ -222,20 +222,39 @@ def calculatePlayedWithFromDetails(myID,matchdetails):
 
 def getPlayedWith(myID,matchdetails,friendID):
     #playermatches = []
-    playerdetails = []
+    playedwith = []
+    playedagainst = []
     for match in matchdetails:
+        inthegame = False
         tree = ET.fromstring(match.encode('ascii', 'ignore'))
         try:
             players = tree.find("players").findall("player")
+            friendradiant = myradiant = None
             for player in players:
                 playerid = player.find("account_id").text
                 if playerid == friendID:
                     #playermatches.append(tree.findtext("match_id"))
-                    playerdetails.append(match)
+                    if int(player.find('player_slot').text) < 5:
+                        friendradiant = 1
+                    else:
+                        friendradiant = 0
+                elif playerid == myID:
+                    if int(player.find('player_slot').text) < 5:
+                        myradiant = 1
+                    else:
+                        myradiant = 0
+                if (friendradiant is not None) and (myradiant is not None):
+                    print 'not none!'
+                    inthegame = True
                     break
         except:
             print "error"
-    return playerdetails
+        if inthegame:
+            if (friendradiant+myradiant)%2 == 0:
+                playedwith.append(match)
+            else:
+                playedagainst.append(match)
+    return (playedwith,playedagainst)
         
 def sortList(asdf):
     asdf.sort(key=lambda price: price[1][2])
