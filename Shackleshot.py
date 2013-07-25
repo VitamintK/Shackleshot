@@ -180,7 +180,7 @@ def calculateWinrateFromDetails(myID, matchdetails):
         print "never bought!"
     return (wins,len(matchdetails),winpercent)
 
-def calculateWinrate(myID, item):
+def calculateWinrateItem(myID, item):
     return calculateWinrateFromDetails(myID,findAllGamesWithItem(myID,item))
 
 def calculateWinrateForAllItems(myID):
@@ -189,7 +189,7 @@ def calculateWinrateForAllItems(myID):
     for i in itemray:
         print str(iteration) + " out of " + str(len(itemray))
         iteration+=1
-        winrates.append((i,calculateWinrate(myID,i)))
+        winrates.append((i,calculateWinrateItem(myID,i)))
     sortList(winrates)
     print winrates
     for winrate in winrates:
@@ -217,11 +217,26 @@ def calculatePlayedWithFromDetails(myID,matchdetails):
         tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
         players =tree.find("players").findall("player")
         for player in players:
-            print str(users[user]) + " - " + player.findtext('personaname')
+            if users[user] > 1:
+                print str(users[user]) + " - " + player.findtext('personaname')
 
-def getPlayedWith(myID,friendID):
-    pass
-
+def getPlayedWith(myID,matchdetails,friendID):
+    #playermatches = []
+    playerdetails = []
+    for match in matchdetails:
+        tree = ET.fromstring(match.encode('ascii', 'ignore'))
+        try:
+            players = tree.find("players").findall("player")
+            for player in players:
+                playerid = player.find("account_id").text
+                if playerid == friendID:
+                    #playermatches.append(tree.findtext("match_id"))
+                    playerdetails.append(match)
+                    break
+        except:
+            print "error"
+    return playerdetails
+        
 def sortList(asdf):
     asdf.sort(key=lambda price: price[1][2])
 
