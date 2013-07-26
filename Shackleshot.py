@@ -22,7 +22,6 @@ def getAllMatches(playerid):
     ia=0
     sequence = 0
     maxmatch = "9999999999"
-    #maxmatch = "112822135"
     go = True
 
     while go == True:
@@ -40,13 +39,10 @@ def getAllMatches(playerid):
             go = False
         for h in matches:
             ia+=1
-            #fdsa = h.find("players").findall("player")
             templist = []
             maxmatch = h.find("match_id").text
-            #print templist
             matchlist.append(maxmatch)
             print maxmatch
-    #print r.text
     print "matches: " + str(ia)
     print "sequence: " + str(sequence)
     return matchlist
@@ -177,7 +173,7 @@ def calculateWinrateFromDetails(myID, matchdetails):
     except ZeroDivisionError:
         #hey it's pythonic!
         winpercent = -1
-        print "never bought!"
+        print "not found!"
     return (wins,len(matchdetails),winpercent)
 
 def calculateWinrateItem(myID, item):
@@ -195,7 +191,10 @@ def calculateWinrateForAllItems(myID):
     for winrate in winrates:
         print str(winrate[1][2]) + "%  - " + itemray[str(winrate[0])] + " - " + str(winrate[1][0]) + "/" + str(winrate[1][1])
 
-def calculatePlayedWithFromDetails(myID,matchdetails):
+def calculatePlayedWithFromDetails(myID,matchdetails=None):
+    #change name to getallplayedwith
+    if matchdetails is None:
+        matchdetails = openDetails(myID)
     users = {}
     for match in matchdetails:
         tree = ET.fromstring(match.encode('ascii', 'ignore'))
@@ -210,18 +209,22 @@ def calculatePlayedWithFromDetails(myID,matchdetails):
         except:
             print "user not found"
     for user in users:
-        r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
-                         "format=%s"
-                         "&key=%s"
-                         "&steamids=%s"%("XML",apikey,long(user)+76561197960265728))
-        tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
-        players =tree.find("players").findall("player")
-        for player in players:
-            if users[user] > 1:
-                print str(users[user]) + " - " + player.findtext('personaname')
+        if users[user] > 1:
+            r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
+                             "format=%s"
+                             "&key=%s"
+                             "&steamids=%s"%("XML",apikey,long(user)+76561197960265728))
+            tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
+            player =tree.find("players").find("player")
+            try:
+                print str(users[user]) + " - " + player.findtext('personaname') + " - " + str(user)
+            except:
+                print str(users[user]) + " - " + user + " invalid."
 
-def getPlayedWith(myID,matchdetails,friendID):
+def getPlayedWith(myID,friendID,matchdetails=None):
     #playermatches = []
+    if matchdetails is None:
+        matchdetails = openDetails(myID)
     playedwith = []
     playedagainst = []
     for match in matchdetails:
@@ -244,18 +247,26 @@ def getPlayedWith(myID,matchdetails,friendID):
                     else:
                         myradiant = 0
                 if (friendradiant is not None) and (myradiant is not None):
-                    print 'not none!'
                     inthegame = True
                     break
         except:
             print "error"
         if inthegame:
             if (friendradiant+myradiant)%2 == 0:
+                print tree.findtext("match_id") + " played with"
                 playedwith.append(match)
             else:
+                print tree.findtext("match_id") + " played against"
                 playedagainst.append(match)
     return (playedwith,playedagainst)
-        
+
+def calculateWinrateWith(myID,friendID):
+    allplayedwith = getPlayedWith(myID,friendID)
+    print "played with"
+    calculateWinrateFromDetails(myID,allplayedwith[0])
+    print "played against"
+    calculateWinrateFromDetails(myID,allplayedwith[1])
+
 def sortList(asdf):
     asdf.sort(key=lambda price: price[1][2])
 
