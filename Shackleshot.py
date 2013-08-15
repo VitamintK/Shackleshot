@@ -291,7 +291,39 @@ def getAllHeroes():
         heroes = tree.find("heroes").findall("hero")
         for hero in heroes:
             herolist[hero.findtext('id')] = hero.findtext('localized_name')
-    print herolist
+    return herolist
+
+def getHeroesPlayedAs(myID,matchdetails = None):
+    herolist = []
+    if matchdetails is None:
+        matchdetails = openDetails(myID)
+    for match in matchdetails:
+        tree = ET.fromstring(match.encode('ascii', 'ignore'))
+        players =tree.find("players").findall("player")
+        try:
+            for player in players:
+                if player.find("account_id").text == myID:
+                    curhero = player.findtext("hero_id")
+                    if curhero not in herolist:
+                        herolist.append(curhero)
+        except:
+            #print "player not found in match " + tree.findtext("match_id")
+            print match
+    return herolist
+                    
+def getHeroesNotPlayedAs(myID, localized = True, matchdetails = None):
+    heroesnotplayedas = []
+    heroesplayedas = getHeroesPlayedAs(myID,matchdetails)
+    allheroes = getAllHeroes()
+    if localized:
+        for hero in allheroes:
+            if hero not in heroesplayedas:
+                heroesnotplayedas.append(getHero(hero))
+    else:
+        for hero in allheroes:
+            if hero not in heroesplayedas:
+                heroesnotplayedas.append(hero)
+    return heroesnotplayedas
 
 def boots(user=girlgamer):
     #print findAllGamesWithItem(user,"50")  
