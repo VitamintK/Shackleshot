@@ -24,32 +24,45 @@ with open("config.txt", 'r') as f:
 
 def getAllMatches(playerid):
     matchlist = []
-    ia=0
+    matchnum=0
     sequence = 0
     maxmatch = "9999999999"
+    prevmatch = '9999'
+    maxtime = 9996526270
     go = True
-
+    
     while go == True:
         sequence+=1
-        maxmatch = str(int(maxmatch)-1)
+        maxtime = str(int(maxtime))
         r = requests.get("http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1/?"
                          "format=%s"
                          "&key=%s"
                          "&account_id=%s"
                          "&matches_requested=%s"
-                         "&start_at_match_id=%s"%("XML",apikey,playerid,"60",maxmatch))
+                         "&date_max=%s"%("XML",apikey,playerid,"60",maxtime))
         tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
         matches=tree.find("matches").findall("match")
         if not matches:
-            go = False
+            break
         for h in matches:
-            ia+=1
-            templist = []
+            matchnum+=1
+            maxtime = h.findtext('start_time')
             maxmatch = h.find("match_id").text
+            #this is needed to recognize the last match
+            if maxmatch == prevmatch:
+                if double == True:
+                    go = False
+                double = True
+            else:
+                double = False
+            prevmatch = maxmatch
             matchlist.append(maxmatch)
-            print maxmatch
-    print "matches: " + str(ia)
+            print "match " + maxmatch
+    print "matches: " + str(matchnum)
     print "sequence: " + str(sequence)
+    matchlist = removeDuplicates(matchlist)
+    print "non-duplicate matches: " + str(len(matchlist))
+    print "duplicate matches: " + str(matchnum-len(matchlist))
     return matchlist
 
 def saveAllMatches(playerID,overwrite = True):
@@ -274,6 +287,13 @@ def calculateWinrateWith(myID,friendID):
 
 def sortList(asdf):
     asdf.sort(key=lambda price: price[1][2])
+
+def removeDuplicates(_list):
+    newlist = []
+    for i in _list:
+        if i not in newlist:
+            newlist.append(i)
+    return newlist
 
 def getHero(heroID):
     with open("heroes.xml",'r') as r:
