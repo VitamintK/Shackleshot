@@ -284,6 +284,15 @@ def getHero(heroID):
                 localizedname = hero.findtext("localized_name")
     return localizedname
 
+def getAllHeroes():
+    herolist = {}
+    with open("heroes.xml",'r') as r:
+        tree = ET.fromstring(r.read().encode('ascii', 'ignore'))
+        heroes = tree.find("heroes").findall("hero")
+        for hero in heroes:
+            herolist[hero.findtext('id')] = hero.findtext('localized_name')
+    print herolist
+
 def boots(user=girlgamer):
     #print findAllGamesWithItem(user,"50")  
     #print findAllGamesWithItem(user,"214")  
