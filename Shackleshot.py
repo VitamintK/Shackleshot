@@ -7,11 +7,20 @@ AND CALCULATE WINRATES AND OTHER STATISTICS FROM THAT DATA
 #GGBRANCH.COM
 #DAGON5.COM
 #to do: more than 250 matches, and exclude diretide
+#specify timeframe for winrates etc. maybe retrieve a timeframe of matchdetails
+#add appending only the matches not already saved in saveAllMatches and saveAllDetails
+#match details should probably be stored as ElementTrees, since they are never used in
+#string form.
+#pressing issue: make it better
+# -appending new matches to a user's matchfiles should be appending, not rewriting.
+# -speed in parsing details, such as item winrates.
+
 import requests
 import os
 import pickle
 import xml.etree.ElementTree as ET
 import items
+import time
 itemray = items.itemray
 
 mabufula = "40753485"
@@ -34,6 +43,7 @@ def getAllMatches(playerid):
     while go == True:
         sequence+=1
         maxtime = str(int(maxtime))
+        print "maxtime: " + maxtime
         r = requests.get("http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1/?"
                          "format=%s"
                          "&key=%s"
@@ -47,6 +57,7 @@ def getAllMatches(playerid):
         for h in matches:
             matchnum+=1
             maxtime = h.findtext('start_time')
+            print maxtime
             maxmatch = h.find("match_id").text
             #this is needed to recognize the last match
             if maxmatch == prevmatch:
@@ -58,6 +69,8 @@ def getAllMatches(playerid):
             prevmatch = maxmatch
             matchlist.append(maxmatch)
             print "match " + maxmatch
+        print ''
+        time.sleep(1)
     print "matches: " + str(matchnum)
     print "sequence: " + str(sequence)
     matchlist = removeDuplicates(matchlist)
@@ -345,6 +358,60 @@ def getHeroesNotPlayedAs(myID, localized = True, matchdetails = None):
                 heroesnotplayedas.append(hero)
     return heroesnotplayedas
 
+def printMatchSummary(match):
+    """enter a match, get a summary of player names, heroes, kda, items, abilities
+    basically everything in a nice ui.
+    example usage: matchSummary(openDetails(mabufula)[0])"""
+    tree = ET.fromstring(match.encode('ascii', 'ignore'))
+    players = tree.find("players").findall("player")
+    for player in players:
+        #print player.find("player_slot").text
+        #hero = player.find("hero_id").text
+        children = player.getchildren()
+        for child in children:
+            ctag = child.tag
+            ctext = child.text
+            if ctag[:4]=="item": #can replace with case but how 2 do in python?
+                print itemray[ctext]
+            elif ctag == "account_id":
+                try:
+                    r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
+                                     "format=%s"
+                                     "&key=%s"
+                                     "&steamids=%s"%("XML",apikey,long(ctext)+76561197960265728))
+                    tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
+                    player =tree.find("players").find("player")
+                    try:
+                        print player.findtext('personaname') 
+                    except:
+                        print "???????"
+                except:
+                    print "error retrieving player name. check net connection"
+            elif ctag == "hero_id":
+                print getHero(ctext) #can streamline this with getAllHeroes
+            else:
+                print ctag + ": " + ctext#most are self-explanatory
+
+                #what it should look like
+"""mabufula
+Storm Spirit
+kills/deaths/assists: 12/4/8
+level: 22
+---
+bottle
+arcane_boots
+bloodstone
+dagon_4
+---
+leaver_status: 0
+gold: 59
+last_hits/denies: 54/0
+gold_per_min: 463
+xp_per_min: 834
+gold_spent: 14877
+hero_damage: 17813
+tower_damage: 93
+hero_healing: 0"""
 def boots(user=girlgamer):
     #print findAllGamesWithItem(user,"50")  
     #print findAllGamesWithItem(user,"214")  
