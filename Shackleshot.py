@@ -358,7 +358,7 @@ def getHeroesNotPlayedAs(myID, localized = True, matchdetails = None):
                 heroesnotplayedas.append(hero)
     return heroesnotplayedas
 
-def printMatchSummary(match):
+def printMatchSummary(match): #unfinished method
     """enter a match, get a summary of player names, heroes, kda, items, abilities
     basically everything in a nice ui.
     example usage: matchSummary(openDetails(mabufula)[0])"""
@@ -412,6 +412,49 @@ gold_spent: 14877
 hero_damage: 17813
 tower_damage: 93
 hero_healing: 0"""
+
+def selectDetails(matchdetails,players=None,items=None,heroes=None,evalstring=None):
+    """from a list of matchedetails, this function returns the matchedetails that contain
+    all? of the listed things and evaluates true for the evalstring."""
+    #maybe I should just create an SQL database instead of parsing these elements.... nahhhh
+    for match in matchdetails:
+        toplevel = {}
+        plevel = {}
+        tree = ET.fromstring(match.encode('ascii', 'ignore'))
+        for fact in tree.getchildren():
+            toplevel[fact.tag]=fact.text
+        print toplevel
+        players = tree.find("players").findall("player")
+        for player in players:
+            #print player.find("player_slot").text
+            #hero = player.find("hero_id").text
+            children = player.getchildren()
+            for child in children:
+                ctag = child.tag
+                ctext = child.text
+                if ctag[:4]=="item": #can replace with case but how 2 do in python?
+                    print itemray[ctext]
+                elif ctag == "account_id":
+                    try:
+                        r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
+                                         "format=%s"
+                                         "&key=%s"
+                                         "&steamids=%s"%("XML",apikey,long(ctext)+76561197960265728))
+                        tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
+                        player =tree.find("players").find("player")
+                        try:
+                            print player.findtext('personaname') 
+                        except:
+                            print "???????"
+                    except:
+                        print "error retrieving player name. check net connection"
+                elif ctag == "hero_id":
+                    print getHero(ctext) #can streamline this with getAllHeroes
+                else:
+                    print ctag + ": " + ctext#most are self-explanatory
+
+    
+
 def boots(user=girlgamer):
     #print findAllGamesWithItem(user,"50")  
     #print findAllGamesWithItem(user,"214")  
