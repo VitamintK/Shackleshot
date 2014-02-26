@@ -413,6 +413,24 @@ hero_damage: 17813
 tower_damage: 93
 hero_healing: 0"""
 
+def treeToDict(tree):
+    """converts an ET to a dict, appending duplicately named tags with
+    sequential numbers when setting them as tags of the dict"""
+    dic = {}
+    for c in tree.getchildren():
+        ctag=c.tag
+        if ctag in dic:
+            n=1
+            while ctag in dic:
+                n+=1
+                ctag=c.tag+str(n)
+        if c.getchildren()==[]:
+                    
+            dic[ctag]=c.text
+        else:
+            dic[ctag]=treeToDict(c)
+    return dic
+
 def selectDetails(matchdetails,players=None,items=None,heroes=None,evalstring=None):
     """from a list of matchedetails, this function returns the matchedetails that contain
     all? of the listed things and evaluates true for the evalstring."""
@@ -422,12 +440,14 @@ def selectDetails(matchdetails,players=None,items=None,heroes=None,evalstring=No
         plevel = {}
         tree = ET.fromstring(match.encode('ascii', 'ignore'))
         for fact in tree.getchildren():
-            toplevel[fact.tag]=fact.text
+            if fact.getchildren==[]:
+                toplevel[fact.tag]=fact.text
+            else:
+                toplevel[fact.tag]={}
         print toplevel
         players = tree.find("players").findall("player")
         for player in players:
-            #print player.find("player_slot").text
-            #hero = player.find("hero_id").text
+           
             children = player.getchildren()
             for child in children:
                 ctag = child.tag
