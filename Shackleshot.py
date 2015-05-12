@@ -19,9 +19,9 @@ import requests
 import os
 import pickle
 import xml.etree.ElementTree as ET
+import json
 import items
 import time
-itemray = items.itemray
 
 mabufula = "40753485"
 arthor = "47199737"
@@ -30,6 +30,20 @@ girlgamer = "128596275"
 
 with open("config.txt", 'r') as f:
     apikey = f.read()
+
+def getItems():
+    try:
+        #getting items from unofficial item schema http://www.dota2.com/jsfeed/itemdata
+        itemjs = json.loads(requests.get("http://www.dota2.com/jsfeed/itemdata").text)
+        itemdict = {str(itemjs['itemdata'][i]['id']):i for i in itemjs['itemdata']}
+        return itemdict
+    except:
+        #item schema didn't work
+        raise
+        print("DOTA 2 ONLINE ITEM SCHEMA NOT WORKING")
+        return items.itemray
+
+itemray = getItems()
 
 def getAllMatches(playerid):
     matchlist = []
@@ -179,7 +193,7 @@ def findAllGamesWithItem(myID,item):
         except:
             print("user not found in game " + tree.findtext("match_id"))
     print(str(amount) + " games with "+ itemray[str(item)])
-    return itemmatchdetails
+    #return itemmatchdetails
 
 def calculateWinrateFromDetails(myID, matchdetails):
     wins = 0
@@ -365,6 +379,7 @@ def printMatchSummary(match): #unfinished method
     tree = ET.fromstring(match.encode('ascii', 'ignore'))
     players = tree.find("players").findall("player")
     for player in players:
+        print("--------------------")
         #print player.find("player_slot").text
         #hero = player.find("hero_id").text
         children = player.getchildren()
@@ -372,7 +387,10 @@ def printMatchSummary(match): #unfinished method
             ctag = child.tag
             ctext = child.text
             if ctag[:4]=="item": #can replace with case but how 2 do in python?
-                print(itemray[ctext])
+                if ctext == '0':
+                    print("")
+                else:
+                    print("    {}".format(itemray[ctext]))
             elif ctag == "account_id":
                 try:
                     r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
@@ -476,11 +494,11 @@ def selectDetails(matchdetails,players=None,items=None,heroes=None,evalstring=No
     
 
 def boots(user=girlgamer):
-    #print findAllGamesWithItem(user,"50")  
-    #print findAllGamesWithItem(user,"214")  
-    #findAllGamesWithItem(user,"180")  
-    #print findAllGamesWithItem(user,"48")  
-    #print findAllGamesWithItem(user,"63")
+    print(findAllGamesWithItem(user,"50") ) 
+    print(findAllGamesWithItem(user,"214") ) 
+    findAllGamesWithItem(user,"180")  
+    print(findAllGamesWithItem(user,"48")  )
+    print(findAllGamesWithItem(user,"63"))
     print(findAllGamesWithItem(user,"162"))
     
 
