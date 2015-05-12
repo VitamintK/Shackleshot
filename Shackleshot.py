@@ -84,19 +84,19 @@ def saveAllMatches(playerID,overwrite = True):
             pass
     except IOError:
         allmatches = getAllMatches(playerID)
-        with open("matches"+str(playerID)+".txt",'w') as p:
+        with open("matches"+str(playerID)+".txt",'wb') as p:
             pickle.dump(allmatches,p)
     else:
         if overwrite:
             allmatches = getAllMatches(playerID)
-            with open("matches"+str(playerID)+".txt",'w') as p:
+            with open("matches"+str(playerID)+".txt",'wb') as p:
                 pickle.dump(allmatches,p)
         else:
             pass
 
 def getAllDetails(matchfile):
     allDetailsXML = []
-    with open(matchfile, 'r') as f:
+    with open(matchfile, 'rb') as f:
         matchlist = pickle.load(f)
     for i in matchlist:
         try:
@@ -129,21 +129,21 @@ def saveAllDetails(playerID,overwrite = True):
         #this probably means that the file doesn't exist yet.
         print("FILE DOESN'T EXIST YET.  WRITING.")
         alldetails = getAllDetails("matches"+str(playerID)+".txt")
-        with open("matchdetails"+str(playerID)+".txt",'w') as p:
+        with open("matchdetails"+str(playerID)+".txt",'wb') as p:
             pickle.dump(alldetails,p)
     else:
         #if the file already exists
         if overwrite:
             print("OVERWRITING")
             alldetails = getAllDetails("matches"+str(playerID)+".txt")
-            with open("matchdetails"+str(playerID)+".txt",'w') as p:
+            with open("matchdetails"+str(playerID)+".txt",'wb') as p:
                 pickle.dump(alldetails,p)
         else:
             print("NOT OVERWRITING")
             pass
         
 def openDetails(playerID):
-    with open("matchdetails"+str(playerID)+".txt", 'r') as f:
+    with open("matchdetails"+str(playerID)+".txt", 'rb') as f:
         matchdetails = pickle.load(f) 
     return matchdetails
 
