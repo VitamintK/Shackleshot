@@ -43,7 +43,7 @@ def getAllMatches(playerid):
     while go == True:
         sequence+=1
         maxtime = str(int(maxtime))
-        print "maxtime: " + maxtime
+        print("maxtime: " + maxtime)
         r = requests.get("http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1/?"
                          "format=%s"
                          "&key=%s"
@@ -57,7 +57,7 @@ def getAllMatches(playerid):
         for h in matches:
             matchnum+=1
             maxtime = h.findtext('start_time')
-            print maxtime
+            print(maxtime)
             maxmatch = h.find("match_id").text
             #this is needed to recognize the last match
             if maxmatch == prevmatch:
@@ -68,14 +68,14 @@ def getAllMatches(playerid):
                 double = False
             prevmatch = maxmatch
             matchlist.append(maxmatch)
-            print "match " + maxmatch
-        print ''
+            print("match " + maxmatch)
+        print('')
         time.sleep(1)
-    print "matches: " + str(matchnum)
-    print "sequence: " + str(sequence)
+    print("matches: " + str(matchnum))
+    print("sequence: " + str(sequence))
     matchlist = removeDuplicates(matchlist)
-    print "non-duplicate matches: " + str(len(matchlist))
-    print "duplicate matches: " + str(matchnum-len(matchlist))
+    print("non-duplicate matches: " + str(len(matchlist)))
+    print("duplicate matches: " + str(matchnum-len(matchlist)))
     return matchlist
 
 def saveAllMatches(playerID,overwrite = True):
@@ -105,41 +105,41 @@ def getAllDetails(matchfile):
                              "&key=%s"
                              "&match_id=%s"%("XML","9D6AA7810AF5EF66B3A70566614DE147",i))
         except:
-            print "failed. " + i + ". Trying again."
+            print("failed. " + i + ". Trying again.")
             try:
                 r = requests.get("https://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/V001/"
                                  "?format=%s"
                                  "&key=%s"
                                  "&match_id=%s"%("XML","9D6AA7810AF5EF66B3A70566614DE147",i))
             except:
-                print "failed again.  skipping."
+                print("failed again.  skipping.")
         allDetailsXML.append(r.text)
         #print r.text
-        print i
+        print(i)
     return allDetailsXML
 
 def saveAllDetails(playerID,overwrite = True):
     try:
         with open("matchdetails"+str(playerID)+".txt",'r') as q:
             #if this doesn't raise an error, then the file already exists
-            print "FILE EXISTS"
+            print("FILE EXISTS")
             pass
         
     except IOError:
         #this probably means that the file doesn't exist yet.
-        print "FILE DOESN'T EXIST YET.  WRITING."
+        print("FILE DOESN'T EXIST YET.  WRITING.")
         alldetails = getAllDetails("matches"+str(playerID)+".txt")
         with open("matchdetails"+str(playerID)+".txt",'w') as p:
             pickle.dump(alldetails,p)
     else:
         #if the file already exists
         if overwrite:
-            print "OVERWRITING"
+            print("OVERWRITING")
             alldetails = getAllDetails("matches"+str(playerID)+".txt")
             with open("matchdetails"+str(playerID)+".txt",'w') as p:
                 pickle.dump(alldetails,p)
         else:
-            print "NOT OVERWRITING"
+            print("NOT OVERWRITING")
             pass
         
 def openDetails(playerID):
@@ -148,9 +148,9 @@ def openDetails(playerID):
     return matchdetails
 
 def saveAllDetailsFromID(playerID,overwrite = True):
-    print "saving all matches"
+    print("saving all matches")
     saveAllMatches(playerID,overwrite)
-    print "saving all details"
+    print("saving all details")
     saveAllDetails(playerID,overwrite)
 
 def findAllGamesWithItem(myID,item):
@@ -167,7 +167,7 @@ def findAllGamesWithItem(myID,item):
                 if player.find("account_id").text == myID:
                     user = player
                     break
-            for i in xrange(0,5):
+            for i in range(0,5):
                 curitem = user.find("item_"+str(i))
                 if curitem.text == str(item):
                     amount+=1
@@ -177,8 +177,8 @@ def findAllGamesWithItem(myID,item):
                     #print "http://dotabuff.com/matches/"+tree.findtext("match_id")
                     break
         except:
-            print "user not found in game " + tree.findtext("match_id")
-    print str(amount) + " games with "+ itemray[str(item)]
+            print("user not found in game " + tree.findtext("match_id"))
+    print(str(amount) + " games with "+ itemray[str(item)])
     return itemmatchdetails
 
 def calculateWinrateFromDetails(myID, matchdetails):
@@ -195,16 +195,16 @@ def calculateWinrateFromDetails(myID, matchdetails):
                         radiant = 'false'
                     break
         except:
-            print "user not found"
+            print("user not found")
         if radiant == tree.findtext('radiant_win'):
             wins+=1
     try:
         winpercent = round(float(100*wins)/len(matchdetails),1)
-        print str(wins) + "/" + str(len(matchdetails)) + " - " + str(winpercent) + "%"
+        print(str(wins) + "/" + str(len(matchdetails)) + " - " + str(winpercent) + "%")
     except ZeroDivisionError:
         #hey it's pythonic!
         winpercent = -1
-        print "not found!"
+        print("not found!")
     return (wins,len(matchdetails),winpercent)
 
 def calculateWinrateItem(myID, item):
@@ -214,13 +214,13 @@ def calculateWinrateForAllItems(myID):
     winrates = []
     iteration = 0
     for i in itemray:
-        print str(iteration) + " out of " + str(len(itemray))
+        print(str(iteration) + " out of " + str(len(itemray)))
         iteration+=1
         winrates.append((i,calculateWinrateItem(myID,i)))
     sortList(winrates)
-    print winrates
+    print(winrates)
     for winrate in winrates:
-        print str(winrate[1][2]) + "%  - " + itemray[str(winrate[0])] + " - " + str(winrate[1][0]) + "/" + str(winrate[1][1])
+        print(str(winrate[1][2]) + "%  - " + itemray[str(winrate[0])] + " - " + str(winrate[1][0]) + "/" + str(winrate[1][1]))
 
 def calculatePlayedWithFromDetails(myID,matchdetails=None):
     #change name to getallplayedwith
@@ -238,19 +238,19 @@ def calculatePlayedWithFromDetails(myID,matchdetails=None):
                 else:
                     users[playerid]=1
         except:
-            print "user not found"
+            print("user not found")
     for user in users:
         if users[user] > 1:
             r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
                              "format=%s"
                              "&key=%s"
-                             "&steamids=%s"%("XML",apikey,long(user)+76561197960265728))
+                             "&steamids=%s"%("XML",apikey,int(user)+76561197960265728))
             tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
             player =tree.find("players").find("player")
             try:
-                print str(users[user]) + " - " + player.findtext('personaname') + " - " + str(user)
+                print(str(users[user]) + " - " + player.findtext('personaname') + " - " + str(user))
             except:
-                print str(users[user]) + " - " + user + " invalid."
+                print(str(users[user]) + " - " + user + " invalid.")
 
 def getPlayedWith(myID,friendID,matchdetails=None):
     #playermatches = []
@@ -281,21 +281,21 @@ def getPlayedWith(myID,friendID,matchdetails=None):
                     inthegame = True
                     break
         except:
-            print "error"
+            print("error")
         if inthegame:
             if (friendradiant+myradiant)%2 == 0:
-                print tree.findtext("match_id") + " played with"
+                print(tree.findtext("match_id") + " played with")
                 playedwith.append(match)
             else:
-                print tree.findtext("match_id") + " played against"
+                print(tree.findtext("match_id") + " played against")
                 playedagainst.append(match)
     return (playedwith,playedagainst)
 
 def calculateWinrateWith(myID,friendID):
     allplayedwith = getPlayedWith(myID,friendID)
-    print "played with"
+    print("played with")
     calculateWinrateFromDetails(myID,allplayedwith[0])
-    print "played against"
+    print("played against")
     calculateWinrateFromDetails(myID,allplayedwith[1])
 
 def sortList(asdf):
@@ -341,7 +341,7 @@ def getHeroesPlayedAs(myID,matchdetails = None):
                         herolist.append(curhero)
         except:
             #print "player not found in match " + tree.findtext("match_id")
-            print match
+            print(match)
     return herolist
                     
 def getHeroesNotPlayedAs(myID, localized = True, matchdetails = None):
@@ -372,25 +372,25 @@ def printMatchSummary(match): #unfinished method
             ctag = child.tag
             ctext = child.text
             if ctag[:4]=="item": #can replace with case but how 2 do in python?
-                print itemray[ctext]
+                print(itemray[ctext])
             elif ctag == "account_id":
                 try:
                     r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
                                      "format=%s"
                                      "&key=%s"
-                                     "&steamids=%s"%("XML",apikey,long(ctext)+76561197960265728))
+                                     "&steamids=%s"%("XML",apikey,int(ctext)+76561197960265728))
                     tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
                     player =tree.find("players").find("player")
                     try:
-                        print player.findtext('personaname') 
+                        print(player.findtext('personaname')) 
                     except:
-                        print "???????"
+                        print("???????")
                 except:
-                    print "error retrieving player name. check net connection"
+                    print("error retrieving player name. check net connection")
             elif ctag == "hero_id":
-                print getHero(ctext) #can streamline this with getAllHeroes
+                print(getHero(ctext)) #can streamline this with getAllHeroes
             else:
-                print ctag + ": " + ctext#most are self-explanatory
+                print(ctag + ": " + ctext)#most are self-explanatory
 
                 #what it should look like
 """mabufula
@@ -444,7 +444,7 @@ def selectDetails(matchdetails,players=None,items=None,heroes=None,evalstring=No
                 toplevel[fact.tag]=fact.text
             else:
                 toplevel[fact.tag]={}
-        print toplevel
+        print(toplevel)
         players = tree.find("players").findall("player")
         for player in players:
            
@@ -453,25 +453,25 @@ def selectDetails(matchdetails,players=None,items=None,heroes=None,evalstring=No
                 ctag = child.tag
                 ctext = child.text
                 if ctag[:4]=="item": #can replace with case but how 2 do in python?
-                    print itemray[ctext]
+                    print(itemray[ctext])
                 elif ctag == "account_id":
                     try:
                         r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
                                          "format=%s"
                                          "&key=%s"
-                                         "&steamids=%s"%("XML",apikey,long(ctext)+76561197960265728))
+                                         "&steamids=%s"%("XML",apikey,int(ctext)+76561197960265728))
                         tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
                         player =tree.find("players").find("player")
                         try:
-                            print player.findtext('personaname') 
+                            print(player.findtext('personaname')) 
                         except:
-                            print "???????"
+                            print("???????")
                     except:
-                        print "error retrieving player name. check net connection"
+                        print("error retrieving player name. check net connection")
                 elif ctag == "hero_id":
-                    print getHero(ctext) #can streamline this with getAllHeroes
+                    print(getHero(ctext)) #can streamline this with getAllHeroes
                 else:
-                    print ctag + ": " + ctext#most are self-explanatory
+                    print(ctag + ": " + ctext)#most are self-explanatory
 
     
 
@@ -481,7 +481,7 @@ def boots(user=girlgamer):
     #findAllGamesWithItem(user,"180")  
     #print findAllGamesWithItem(user,"48")  
     #print findAllGamesWithItem(user,"63")
-    print findAllGamesWithItem(user,"162")
+    print(findAllGamesWithItem(user,"162"))
     
 
 
