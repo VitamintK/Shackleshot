@@ -4,6 +4,9 @@ import random
 import requests
 import xml.etree.ElementTree as ET
 
+
+#IDEA!!!!: THE CHOICES YOU ARE GIVEN ARE THE 10 HEROES IN THE GAME.  OR.  YOU HAVE TO MATCH EACH OF THE 10 HEROES WITH THEIR STATS.
+
 def random_trivia(out_format="html"):
     matchez = Shackleshot.openDetails(Shackleshot.mabufula)
     random_match = random.choice(matchez)
