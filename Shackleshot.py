@@ -36,10 +36,11 @@ def getItems():
         #getting items from unofficial item schema http://www.dota2.com/jsfeed/itemdata
         itemjs = requests.get("http://www.dota2.com/jsfeed/itemdata").json()
         itemdict = {str(itemjs['itemdata'][i]['id']):i for i in itemjs['itemdata']}
+        print(itemdict)
         return itemdict
     except:
         #item schema didn't work
-        raise
+        
         print("DOTA 2 ONLINE ITEM SCHEMA NOT WORKING")
         return items.itemray
 
