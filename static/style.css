@@ -2,6 +2,13 @@ body{
 	font-family: Helvetica, Arial, sans-serif;
 	text-align: center;
 }
+#dota_main{
+	padding:5px;
+	width:460px;
+	margin:0 auto;
+	margin-top:2px;
+	border: 2px solid #AAA;
+}
 #score{
 	float:left;
 	margin:auto;
