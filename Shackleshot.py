@@ -28,6 +28,8 @@ arthor = "47199737"
 flameant = "29065860"
 girlgamer = "128596275"
 
+#os.chdir("Shackleshot") #This is for pythonanywhere
+
 with open("config.txt", 'r') as f:
     apikey = f.read()
 
@@ -40,7 +42,6 @@ def getItems():
         return itemdict
     except:
         #item schema didn't work
-        
         print("DOTA 2 ONLINE ITEM SCHEMA NOT WORKING")
         return items.itemray
 
