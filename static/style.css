@@ -1,0 +1,67 @@
+body{
+	font-family: Helvetica, Arial, sans-serif;
+	text-align: center;
+}
+#score{
+	float:left;
+	margin:auto;
+	/*margin-left: 2.3em;*/
+	position:absolute;
+	left:2.3em;
+}
+#maxscore{
+	float:right;
+	margin:auto;
+	/*margin-right: 2.3em;*/
+	position:absolute;
+	right:2.3em;
+}
+#container{
+	font-size: 1.2em;
+	height: 21em;
+	margin-left: 2em;
+	margin-right: 2em;
+	overflow-y: auto;
+}
+#stattable{
+	border: 1px solid #AAA;
+	border-collapse: collapse;
+	font-size:14px;
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: auto;
+	margin-bottom:0px;
+	position: relative;
+/*	top: 50%;
+	transform: translateY(-50%);*/
+}
+#stattable td, th{
+	border: 1px solid #AAA;
+	text-align: center;
+	padding: 3px;
+}
+#input_stuff{
+	margin-left: 3em;
+	margin-right: 3em;
+}
+
+#resMessage{
+	height:5.5em;
+	margin-left: 2em;
+	margin-right: 2em;
+}
+
+.ui-autocomplete {
+max-height: 100px;
+overflow-y: auto;
+/* prevent horizontal scrollbar */
+overflow-x: hidden;
+}
+
+#score_placement{
+	font-weight: bold;
+}
+
+.no_color td{
+	background-color: inherit !important;
+}

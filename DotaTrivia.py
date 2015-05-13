@@ -4,7 +4,7 @@ import random
 import requests
 import xml.etree.ElementTree as ET
 
-def random_trivia():
+def random_trivia(out_format="html"):
     matchez = Shackleshot.openDetails(Shackleshot.mabufula)
     random_match = random.choice(matchez)
     #Shackleshot.printMatchSummary(random_match)
@@ -21,7 +21,12 @@ def random_trivia():
             if ctext == '0':
                 pretty_string +=("") + '\n'
             else:
-                pretty_string +=("    {}".format(itemray[ctext])) + '\n'
+                if(out_format == "html"):
+                    pretty_string +=('<img src="http://cdn.dota2.com/apps/dota2/images/items/{}_lg.png">'.format(itemray[ctext]))
+                    if ctag[-1:] == '2' or ctag[-1:] == '5':
+                        pretty_string += '\n'
+                else:
+                    pretty_string +=("    {}".format(itemray[ctext])) + '\n'
         elif ctag == "account_id":
             try:
                 r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
@@ -43,7 +48,7 @@ def random_trivia():
             random_hero = Shackleshot.getHero(ctext) #can streamline this with getAllHeroes
         else:
             pretty_string += (ctag + ": " + ctext) + '\n'#most are self-explanatory
-    return pretty_string
+    return pretty_string, random_hero
     #guess = input("What hero was this? (case insensitive) ")
     #if random_hero.lower() == guess.lower():
     #    print("YOU WERE RIGHT")
