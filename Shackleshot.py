@@ -34,7 +34,7 @@ with open("config.txt", 'r') as f:
 def getItems():
     try:
         #getting items from unofficial item schema http://www.dota2.com/jsfeed/itemdata
-        itemjs = json.loads(requests.get("http://www.dota2.com/jsfeed/itemdata").text)
+        itemjs = requests.get("http://www.dota2.com/jsfeed/itemdata").json()
         itemdict = {str(itemjs['itemdata'][i]['id']):i for i in itemjs['itemdata']}
         return itemdict
     except:
