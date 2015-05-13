@@ -22,7 +22,7 @@
 	$(document).ready(function(){
 		$("#go_btn").click(
 			function(){
-				if($("#player").val() == hero){
+				if($("#player").val().toLowerCase() == hero.toLowerCase()){
 					display_win(true);
 				} else{
 					display_win(false);
