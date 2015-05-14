@@ -29,22 +29,32 @@
 					display_win(false);
 				}
 				$("#give_btn").prop('disabled', false);
-			});
+				$('#player').val('');
+		});
+		$('#player').keypress(function (e){
+			var key = e.which;
+			if(key == 13) {
+				$('#go_btn').click();
+				return false;
+			}
+		});
 	});
 	</script>
 </head>
 <body>
+
+	<h1>WHAT DOTA HERO IS THIS?</h1>
+
 	<div id="dota_main">
 		{% autoescape false %}
 		{{hero_info}}
 		{% endautoescape %}
 	</div>
 
+	<br>
 
-<h1>
-WHAT DOTA HERO IS THIS?</h1>
 	<div id = "input_stuff" class="form-inline">
-	  			<input type="text" id="player" name="player_name" autofocus class="form-control" placeholder="dota hero name">
+	  			<input autocomplete="off" type="text" id="player" name="player_name" autofocus class="form-control" placeholder="dota hero name">
 	 			<button id="go_btn" class="btn btn-primary btn-large">GO</button>
 	 		<br><br>
 	 		<form action={{dotabuff}} target="_blank" autocomplete="off">
