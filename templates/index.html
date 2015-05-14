@@ -12,6 +12,7 @@
 
 	<script> 
 	hero = "{{hero_name}}"
+	dotabuff = "{{dotabuff}}"
 	var display_win = function(won){
 		if(won){
 			alert("you're right");
@@ -27,7 +28,7 @@
 				} else{
 					display_win(false);
 				}
-
+				$("#give_btn").prop('disabled', false);
 			});
 	});
 	</script>
@@ -46,7 +47,12 @@ WHAT DOTA HERO IS THIS?</h1>
 	  			<input type="text" id="player" name="player_name" autofocus class="form-control" placeholder="dota hero name">
 	 			<button id="go_btn" class="btn btn-primary btn-large">GO</button>
 	 		<br><br>
-	 		<button title="the fact that this button doesn't work is quite philosophically meaningful actually." id="give_btn" class="btn btn-default">give up (this button does nothing :))</button>
+	 		<form action={{dotabuff}} target="_blank" autocomplete="off">
+	 			<button disabled title="TRY A GUESS TO ENABLE THIS BUTTON." type="submit" id="give_btn" class="btn btn-default">
+	 			See this match on dotabuff</button>
+	 			<br>
+	 			<label> this button is enabled after you attempt a guess</label>
+	 		</form>
  		</div>
 
  <h3><img style="width:40px" src="http://cdn.dota2.com/apps/dota2/images/items/refresher_lg.png"> REFRESH THE PAGE TO GET A NEW HERO</h3>

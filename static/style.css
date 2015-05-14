@@ -4,10 +4,13 @@ body{
 }
 #dota_main{
 	padding:5px;
-	width:460px;
+	width:400px;
 	margin:0 auto;
 	margin-top:2px;
 	border: 2px solid #AAA;
+}
+.item{
+	width:64px;
 }
 #score{
 	float:left;
