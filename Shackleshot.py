@@ -45,7 +45,16 @@ def getItems():
         print("DOTA 2 ONLINE ITEM SCHEMA NOT WORKING")
         return items.itemray
 
-itemray = getItems()
+class ItemMap:
+    def __init__(self):
+        self.items = getItems()
+    def __getitem__(self, arg):
+        try:
+            return self.items[arg]
+        except KeyError:
+            return "recipe"
+
+itemray = ItemMap()
 
 def getAllMatches(playerid):
     matchlist = []
