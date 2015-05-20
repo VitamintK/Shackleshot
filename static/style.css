@@ -11,6 +11,7 @@ body{
 }
 .item{
 	width:64px;
+	height:48px;
 }
 #score{
 	float:left;
