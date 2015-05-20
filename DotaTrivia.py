@@ -8,15 +8,15 @@ import datetime
 #IDEA!!!!: THE CHOICES YOU ARE GIVEN ARE THE 10 HEROES IN THE GAME.  OR.  YOU HAVE TO MATCH EACH OF THE 10 HEROES WITH THEIR STATS.
 
 def random_trivia(out_format="html"):
-    matchez = Shackleshot.openDetails(Shackleshot.mabufula)
+    matchez = Shackleshot.openDetails("proplayers")
     random_match = random.choice(matchez)
     #Shackleshot.printMatchSummary(random_match)
     tree = ET.fromstring(random_match.encode('ascii', 'ignore'))
 
-    import xml.dom.minidom as minidom
-    rough_string = ET.tostring(tree, 'utf-8')
-    reparsed = minidom.parseString(rough_string)
-    print(reparsed.toprettyxml(indent="\t")), 'df'
+    #import xml.dom.minidom as minidom
+    #rough_string = ET.tostring(tree, 'utf-8')
+    #reparsed = minidom.parseString(rough_string)
+    #print(reparsed.toprettyxml(indent="\t")), 'df'
 
 
     players = tree.find("players").findall("player")

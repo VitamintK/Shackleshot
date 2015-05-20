@@ -215,4 +215,5 @@ pip-log.txt
 .mr.developer.cfg
 
 matchdetails*
+!matchdetailsproplayers.txt
 matches*

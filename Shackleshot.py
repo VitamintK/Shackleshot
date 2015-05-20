@@ -27,6 +27,7 @@ mabufula = "40753485"
 arthor = "47199737"
 flameant = "29065860"
 girlgamer = "128596275"
+pro_players = {'Scandal': '86750262', 'Bulldong': '76482434', 'Waga': '32995405', 's4': '41231571'}
 
 #os.chdir("Shackleshot") #This is for pythonanywhere
 
@@ -45,46 +46,55 @@ def getItems():
         print("DOTA 2 ONLINE ITEM SCHEMA NOT WORKING")
         return items.itemray
 
-class ItemMap:
+class ItemMap(dict):
     def __init__(self):
-        self.items = getItems()
+        dict.__init__(self, getItems())
     def __getitem__(self, arg):
         try:
-            return self.items[arg]
+            return dict.__getitem__(self,arg)
         except KeyError:
             return "recipe"
 
 itemray = ItemMap()
 
 def getAllMatches(playerid):
+    #"You can "combine" filters.
+    #i.e. account_id + hero_id = up to 500 matches per hero_id
+    # so if you're not a player with 2874 Sand King games,
+    #you should be easily able to fetch all your games with a couple API requests."
+    #
+    #^use this to get past the date_max removal
     matchlist = []
     matchnum=0
     sequence = 0
-    maxmatch = "9999999999"
+    maxmatch = ""
     prevmatch = '9999'
-    maxtime = 9996526270
+    #maxtime = 9999926270
     go = True
     
     while go == True:
         sequence+=1
-        maxtime = str(int(maxtime))
-        print("maxtime: " + maxtime)
+        #maxtime = str(maxtime)
+        #print("maxtime: " + maxtime)
+        print("maxmatch: ", maxmatch)
         r = requests.get("http://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v1/?"
                          "format=%s"
                          "&key=%s"
                          "&account_id=%s"
                          "&matches_requested=%s"
-                         "&date_max=%s"%("XML",apikey,playerid,"60",maxtime))
+                         "&start_at_match_id=%s"%("XML",apikey,playerid,"60",maxmatch))
         tree = ET.fromstring(r.text.encode('ascii', 'ignore'))
         matches=tree.find("matches").findall("match")
         if not matches:
             break
         for h in matches:
             matchnum+=1
-            maxtime = h.findtext('start_time')
-            print(maxtime)
+            #maxtime = h.findtext('start_time')
+            #print(maxtime)
             maxmatch = h.find("match_id").text
             #this is needed to recognize the last match
+            #if maxmatch in matchlist:
+            #    go = False
             if maxmatch == prevmatch:
                 if double == True:
                     go = False
@@ -143,30 +153,32 @@ def getAllDetails(matchfile):
         print(i)
     return allDetailsXML
 
-def saveAllDetails(playerID,overwrite = True):
+def saveDetails(alldetails, title, overwrite = True):
     try:
-        with open("matchdetails"+str(playerID)+".txt",'r') as q:
+        with open(title,'r') as q:
             #if this doesn't raise an error, then the file already exists
             print("FILE EXISTS")
             pass
-        
     except IOError:
         #this probably means that the file doesn't exist yet.
         print("FILE DOESN'T EXIST YET.  WRITING.")
-        alldetails = getAllDetails("matches"+str(playerID)+".txt")
-        with open("matchdetails"+str(playerID)+".txt",'wb') as p:
+        with open(title,'wb') as p:
             pickle.dump(alldetails,p)
     else:
         #if the file already exists
         if overwrite:
             print("OVERWRITING")
-            alldetails = getAllDetails("matches"+str(playerID)+".txt")
-            with open("matchdetails"+str(playerID)+".txt",'wb') as p:
+            with open(title,'wb') as p:
                 pickle.dump(alldetails,p)
         else:
             print("NOT OVERWRITING")
             pass
-        
+
+def saveAllDetails(playerID,overwrite = True):
+    #not used anywhere anymore now that saveAllDetailsFromID is refactored?
+    saveDetails(getAllDetails("matches"+str(playerID)+".txt"),
+                "matchdetails"+str(playerID)+".txt", overwrite)
+
 def openDetails(playerID):
     with open("matchdetails"+str(playerID)+".txt", 'rb') as f:
         matchdetails = pickle.load(f) 
@@ -177,6 +189,21 @@ def saveAllDetailsFromID(playerID,overwrite = True):
     saveAllMatches(playerID,overwrite)
     print("saving all details")
     saveAllDetails(playerID,overwrite)
+
+def saveAllDetailsFromIDs(*playerIDs, title = None, overwrite = True):
+    """usage example: saveAllDetailsFromIDs(*pro_players.items(), 'pro_players')"""
+    if title == None:
+        if len(playerIDs) == 1:
+            title = "matchdetails"+str(playerID)+".txt"
+        else:
+            raise TypeError("Title is required for multiple playerIDs")
+    details = []
+    for playerID in playerIDs:
+        print("saving all matches: ", playerID)
+        saveAllMatches(playerID,overwrite)
+        print("saving all details: ", playerID)
+        details.extend(getAllDetails("matches"+str(playerID)+".txt"))
+    saveDetails(details, title, overwrite)
 
 def findAllGamesWithItem(myID,item):
     #return a list of all match details with the item
@@ -204,7 +231,7 @@ def findAllGamesWithItem(myID,item):
         except:
             print("user not found in game " + tree.findtext("match_id"))
     print(str(amount) + " games with "+ itemray[str(item)])
-    #return itemmatchdetails
+    return itemmatchdetails
 
 def calculateWinrateFromDetails(myID, matchdetails):
     wins = 0
@@ -502,7 +529,6 @@ def selectDetails(matchdetails,players=None,items=None,heroes=None,evalstring=No
                 else:
                     print(ctag + ": " + ctext)#most are self-explanatory
 
-    
 
 def boots(user=girlgamer):
     print(findAllGamesWithItem(user,"50") ) 
