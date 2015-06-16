@@ -280,7 +280,10 @@ def calculatePlayedWithFromDetails(myID,matchdetails=None):
         matchdetails = openDetails(myID)
     users = {}
     for match in matchdetails:
-        tree = ET.fromstring(match.encode('ascii', 'ignore'))
+        try:
+            tree = ET.fromstring(match.encode('ascii', 'ignore'))
+        except:
+            continue
         try:
             players = tree.find("players").findall("player")
             for player in players:
