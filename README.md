@@ -42,4 +42,4 @@ calculateWinrateForAllItems(myID)
 
 Dota Crack
 ===========
-Although Dota Crack is sorta a separate project, it is included in this repo for convenience because it imports Shackleshot.py.   Dota Crack is prototype for a Flask webapp trivia game.  The flask application is DotaTriviaFlaskApp.py, and it uses Shackleshot.py to get match data.  A prototype is currently located at http://www.kevinwang4.pythonanywhere.com
+Although Dota Crack is sorta a separate project, it is included in this repo for convenience because it imports Shackleshot.py.   Dota Crack is prototype for a Flask webapp trivia game.  The flask application is DotaTriviaFlaskApp.py, and it uses Shackleshot.py to get match data.  A prototype is currently located at http://kevinwang4.pythonanywhere.com
