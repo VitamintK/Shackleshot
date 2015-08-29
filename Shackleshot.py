@@ -55,7 +55,14 @@ class ItemMap(dict):
         except KeyError:
             return "recipe"
 
-itemray = ItemMap()
+ITEMS = ItemMap()
+
+def getAllHeroes():
+    herojs = requests.get("https://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001/?key={}&language=en_us".format(apikey)).json()
+    herodict = {str(hero['id']): hero['localized_name'] for hero in herojs['result']['heroes']}
+    return herodict
+
+HEROES = getAllHeroes()
 
 def getAllMatches(playerid):
     #"You can "combine" filters.
@@ -230,7 +237,7 @@ def findAllGamesWithItem(myID,item):
                     break
         except:
             print("user not found in game " + tree.findtext("match_id"))
-    print(str(amount) + " games with "+ itemray[str(item)])
+    print(str(amount) + " games with "+ ITEMS[str(item)])
     return itemmatchdetails
 
 def calculateWinrateFromDetails(myID, matchdetails):
@@ -265,14 +272,14 @@ def calculateWinrateItem(myID, item):
 def calculateWinrateForAllItems(myID):
     winrates = []
     iteration = 0
-    for i in itemray:
-        print(str(iteration) + " out of " + str(len(itemray)))
+    for i in ITEMS:
+        print(str(iteration) + " out of " + str(len(ITEMS)))
         iteration+=1
         winrates.append((i,calculateWinrateItem(myID,i)))
     sortList(winrates)
     print(winrates)
     for winrate in winrates:
-        print(str(winrate[1][2]) + "%  - " + itemray[str(winrate[0])] + " - " + str(winrate[1][0]) + "/" + str(winrate[1][1]))
+        print(str(winrate[1][2]) + "%  - " + ITEMS[str(winrate[0])] + " - " + str(winrate[1][0]) + "/" + str(winrate[1][1]))
 
 def calculatePlayedWithFromDetails(myID,matchdetails=None):
     #change name to getallplayedwith
@@ -364,22 +371,24 @@ def removeDuplicates(_list):
     return newlist
 
 def getHero(heroID):
-    with open("heroes.xml",'r') as r:
-        tree = ET.fromstring(r.read().encode('ascii', 'ignore'))
-        heroes = tree.find("heroes").findall("hero")
-        for hero in heroes:
-            if hero.findtext("id")==str(heroID):
-                localizedname = hero.findtext("localized_name")
-    return localizedname
+    return HEROES[heroID]
+    #with open("heroes.xml",'r') as r:
+    #    tree = ET.fromstring(r.read().encode('ascii', 'ignore'))
+    #    heroes = tree.find("heroes").findall("hero")
+    #    for hero in heroes:
+    #        if hero.findtext("id")==str(heroID):
+    #            localizedname = hero.findtext("localized_name")
+    #return localizedname
 
-def getAllHeroes():
-    herolist = {}
-    with open("heroes.xml",'r') as r:
-        tree = ET.fromstring(r.read().encode('ascii', 'ignore'))
-        heroes = tree.find("heroes").findall("hero")
-        for hero in heroes:
-            herolist[hero.findtext('id')] = hero.findtext('localized_name')
-    return herolist
+
+#def getAllHeroes():
+#    herolist = {}
+#    with open("heroes.xml",'r') as r:
+#        tree = ET.fromstring(r.read().encode('ascii', 'ignore'))
+#        heroes = tree.find("heroes").findall("hero")
+#        for hero in heroes:
+#            herolist[hero.findtext('id')] = hero.findtext('localized_name')
+#    return herolist
 
 def getHeroesPlayedAs(myID,matchdetails = None):
     herolist = []
@@ -431,7 +440,7 @@ def printMatchSummary(match): #unfinished method
                 if ctext == '0':
                     print("")
                 else:
-                    print("    {}".format(itemray[ctext]))
+                    print("    {}".format(ITEMS[ctext]))
             elif ctag == "account_id":
                 try:
                     r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
@@ -512,7 +521,7 @@ def selectDetails(matchdetails,players=None,items=None,heroes=None,evalstring=No
                 ctag = child.tag
                 ctext = child.text
                 if ctag[:4]=="item": #can replace with case but how 2 do in python?
-                    print(itemray[ctext])
+                    print(ITEMS[ctext])
                 elif ctag == "account_id":
                     try:
                         r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"

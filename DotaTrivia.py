@@ -1,11 +1,12 @@
 import Shackleshot
-from Shackleshot import itemray, apikey
+from Shackleshot import ITEMS, apikey
 import random
 import requests
 import xml.etree.ElementTree as ET
 import datetime
 
 #IDEA!!!!: THE CHOICES YOU ARE GIVEN ARE THE 10 HEROES IN THE GAME.  OR.  YOU HAVE TO MATCH EACH OF THE 10 HEROES WITH THEIR STATS.
+#todo: add patch version to the info, OR limit site to recent games (current patch)
 
 def random_trivia(out_format="html"):
     matchez = Shackleshot.openDetails("proplayers")
@@ -37,9 +38,9 @@ def random_trivia(out_format="html"):
                     pretty_string +=("")
             else:
                 if(out_format == "html"):
-                    pretty_string +=('<img class="item" src="http://cdn.dota2.com/apps/dota2/images/items/{}_lg.png">'.format(itemray[ctext]))
+                    pretty_string +=('<img class="item" src="http://cdn.dota2.com/apps/dota2/images/items/{}_lg.png">'.format(ITEMS[ctext]))
                 else:
-                    pretty_string +=("    {}".format(itemray[ctext])) + '\n'
+                    pretty_string +=("    {}".format(ITEMS[ctext])) + '\n'
             if out_format == 'html' and (ctag[-1:] == '2' or ctag[-1:] == '5'):
                 pretty_string += '\n'
         elif ctag == "account_id":
