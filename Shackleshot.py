@@ -15,6 +15,11 @@ AND CALCULATE WINRATES AND OTHER STATISTICS FROM THAT DATA
 # -appending new matches to a user's matchfiles should be appending, not rewriting.
 # -speed in parsing details, such as item winrates.
 
+
+#1. when getting match_ids from the api, start_at_match_id should be the most recent game saved already, to speed it up when those match_ids are fed into getMatchDetails
+#2. when saving, append.  don't rewrite.
+
+#idea for tearing this down and remaking: a hashmap to store matches where key = match_id: value = match_details
 import requests
 import os
 import pickle
@@ -55,16 +60,16 @@ class ItemMap(dict):
         except KeyError:
             return "recipe"
 
-ITEMS = ItemMap()
-
 def getAllHeroes():
     herojs = requests.get("https://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001/?key={}&language=en_us".format(apikey)).json()
     herodict = {str(hero['id']): hero['localized_name'] for hero in herojs['result']['heroes']}
     return herodict
 
+ITEMS = ItemMap()
 HEROES = getAllHeroes()
 
-def getAllMatches(playerid):
+def getAllMatches(playerid, end_match_id = ""):
+    """returns the most recent 500 games by the player as a list of match_ids (strings) from the API."""
     #"You can "combine" filters.
     #i.e. account_id + hero_id = up to 500 matches per hero_id
     # so if you're not a player with 2874 Sand King games,
@@ -99,6 +104,9 @@ def getAllMatches(playerid):
             #maxtime = h.findtext('start_time')
             #print(maxtime)
             maxmatch = h.find("match_id").text
+            if maxmatch==end_match_id:
+                go = False
+                break
             #this is needed to recognize the last match
             #if maxmatch in matchlist:
             #    go = False
@@ -120,26 +128,51 @@ def getAllMatches(playerid):
     print("duplicate matches: " + str(matchnum-len(matchlist)))
     return matchlist
 
-def saveAllMatches(playerID,overwrite = True):
+def getMostRecentSavedMatch(playerID):
     try:
-        with open("matches"+str(playerID)+".txt",'r') as p:
+        with open("matches" + str(playerID) + ".txt", "rb") as p:
+            return pickle.load(p)[0]
+    except:
+        return ""
+
+def saveAllMatches(playerID,overwrite = True):
+    """saves match IDs from getAllMatches to a txt file. Returns the newly added matches"""
+    try:
+        with open("matches"+str(playerID)+".txt",'rb') as p:
             pass
     except IOError:
         allmatches = getAllMatches(playerID)
         with open("matches"+str(playerID)+".txt",'wb') as p:
             pickle.dump(allmatches,p)
+        return allmatches
     else:
-        if overwrite:
-            allmatches = getAllMatches(playerID)
-            with open("matches"+str(playerID)+".txt",'wb') as p:
-                pickle.dump(allmatches,p)
-        else:
-            pass
+        mostrecent = getMostRecentSavedMatch(playerID)
+        newmatches = getAllMatches(playerID, end_match_id = mostrecent)
+        with open("matches"+str(playerID)+".txt",'rb') as p:
+            prev = pickle.load(p)
+            prev = newmatches + prev
+            prev = removeDuplicates(prev)
+        with open("matches"+str(playerID)+".txt",'wb') as p:
+            pickle.dump(prev, p)
+        return newmatches
+        #if overwrite:
+        #    allmatches = getAllMatches(playerID)
+        #    with open("matches"+str(playerID)+".txt",'wb') as p:
+        #        pickle.dump(allmatches,p)
+        #else:
+        #    pass
 
-def getAllDetails(matchfile):
+def getAllDetails(matchfile = None, match_ids = None):
+    """given a file of match_ids OR a list of match_ids, return a list of match_details (as XML strings) from the API.
+    If both parameters are given, the list will take precedence."""
+    assert any((matchfile, match_ids)), "You must supply an argument."
     allDetailsXML = []
-    with open(matchfile, 'rb') as f:
-        matchlist = pickle.load(f)
+    if matchfile!=None:
+        with open(matchfile, 'rb') as f:
+            matchlist = pickle.load(f)
+    else:
+        matchlist = match_ids
+
     for i in matchlist:
         try:
             r = requests.get("https://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/V001/"
@@ -161,6 +194,7 @@ def getAllDetails(matchfile):
     return allDetailsXML
 
 def saveDetails(alldetails, title, overwrite = True):
+    "Given a list of match_details, save to a file."
     try:
         with open(title,'r') as q:
             #if this doesn't raise an error, then the file already exists
@@ -173,18 +207,25 @@ def saveDetails(alldetails, title, overwrite = True):
             pickle.dump(alldetails,p)
     else:
         #if the file already exists
-        if overwrite:
-            print("OVERWRITING")
-            with open(title,'wb') as p:
-                pickle.dump(alldetails,p)
-        else:
-            print("NOT OVERWRITING")
-            pass
+        with open(title, 'rb') as p:
+            prev = pickle.load(p)
+            prev = alldetails + prev
+            prev = removeDuplicates(prev)
+        with open(title, 'wb') as p:
+            pickle.dump(prev, p)
+        #if overwrite:
+        #    print("OVERWRITING")
+        #    with open(title,'wb') as p:
+        #        pickle.dump(alldetails,p)
+        #else:
+        #    print("NOT OVERWRITING")
+        #    pass
 
-def saveAllDetails(playerID,overwrite = True):
+#def saveAllDetails(playerID,overwrite = True):
+#    """Given a playerID, get the details and save it using saveDetails"""
     #not used anywhere anymore now that saveAllDetailsFromID is refactored?
-    saveDetails(getAllDetails("matches"+str(playerID)+".txt"),
-                "matchdetails"+str(playerID)+".txt", overwrite)
+#    saveDetails(getAllDetails("matches"+str(playerID)+".txt"),
+#                "matchdetails"+str(playerID)+".txt", overwrite)
 
 def openDetails(playerID):
     with open("matchdetails"+str(playerID)+".txt", 'rb') as f:
@@ -193,9 +234,9 @@ def openDetails(playerID):
 
 def saveAllDetailsFromID(playerID,overwrite = True):
     print("saving all matches")
-    saveAllMatches(playerID,overwrite)
+    newmatches = saveAllMatches(playerID,overwrite)
     print("saving all details")
-    saveAllDetails(playerID,overwrite)
+    saveDetails(getAllDetails(match_ids = newmatches), "matchdetails"+str(playerID)+".txt")
 
 def saveAllDetailsFromIDs(*playerIDs, title = None, overwrite = True):
     """usage example: saveAllDetailsFromIDs(*pro_players.items(), 'pro_players')"""
@@ -208,7 +249,7 @@ def saveAllDetailsFromIDs(*playerIDs, title = None, overwrite = True):
     for playerID in playerIDs:
         print("saving all matches: ", playerID)
         saveAllMatches(playerID,overwrite)
-        print("saving all details: ", playerID)
+        print("getting all details: ", playerID)
         details.extend(getAllDetails("matches"+str(playerID)+".txt"))
     saveDetails(details, title, overwrite)
 
@@ -243,7 +284,11 @@ def findAllGamesWithItem(myID,item):
 def calculateWinrateFromDetails(myID, matchdetails):
     wins = 0
     for match in matchdetails:
-        tree = ET.fromstring(match.encode('ascii', 'ignore'))
+        try:
+            tree = ET.fromstring(match.encode('ascii', 'ignore'))
+        except:
+            print("could not parse match")
+            continue
         try:
             players = tree.find("players").findall("player")
             for player in players:
@@ -281,8 +326,7 @@ def calculateWinrateForAllItems(myID):
     for winrate in winrates:
         print(str(winrate[1][2]) + "%  - " + ITEMS[str(winrate[0])] + " - " + str(winrate[1][0]) + "/" + str(winrate[1][1]))
 
-def calculatePlayedWithFromDetails(myID,matchdetails=None):
-    #change name to getallplayedwith
+def getAllPlayedWith(myID,matchdetails=None, threshold = 2):
     if matchdetails is None:
         matchdetails = openDetails(myID)
     users = {}
@@ -301,8 +345,8 @@ def calculatePlayedWithFromDetails(myID,matchdetails=None):
                     users[playerid]=1
         except:
             print("user not found")
-    for user in users:
-        if users[user] > 1:
+    for user in sorted(users, key = lambda x: users[x]):
+        if users[user] > threshold:
             r = requests.get("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?"
                              "format=%s"
                              "&key=%s"
@@ -313,6 +357,7 @@ def calculatePlayedWithFromDetails(myID,matchdetails=None):
                 print(str(users[user]) + " - " + player.findtext('personaname') + " - " + str(user))
             except:
                 print(str(users[user]) + " - " + user + " invalid.")
+    return sorted([user for user in users if users[user] > threshold], key = lambda x: users[x])
 
 def getPlayedWith(myID,friendID,matchdetails=None):
     #playermatches = []
@@ -322,7 +367,11 @@ def getPlayedWith(myID,friendID,matchdetails=None):
     playedagainst = []
     for match in matchdetails:
         inthegame = False
-        tree = ET.fromstring(match.encode('ascii', 'ignore'))
+        try:
+            tree = ET.fromstring(match.encode('ascii', 'ignore'))
+        except:
+            print("could not parse match")
+            continue
         try:
             players = tree.find("players").findall("player")
             friendradiant = myradiant = None

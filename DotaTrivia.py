@@ -38,7 +38,7 @@ def random_trivia(out_format="html"):
                     pretty_string +=("")
             else:
                 if(out_format == "html"):
-                    pretty_string +=('<img class="item" src="http://cdn.dota2.com/apps/dota2/images/items/{}_lg.png">'.format(ITEMS[ctext]))
+                    pretty_string +=('<img class="item" src="http://cdn.dota2.com/apps/dota2/images/items/{}_lg.png" alt="{}">'.format(ITEMS[ctext], ITEMS[ctext]))
                 else:
                     pretty_string +=("    {}".format(ITEMS[ctext])) + '\n'
             if out_format == 'html' and (ctag[-1:] == '2' or ctag[-1:] == '5'):
